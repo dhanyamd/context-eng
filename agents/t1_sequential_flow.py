@@ -1,7 +1,7 @@
 import dspy 
 import pprint
 from pydantic import BaseModel, Field 
-dspy.configure(lm=dspy.LM(model="gemini/gemini-1.5-flash", api_key="AIzaSyDbhpJ1u040K4hplUlGF3e2Yl3JlfuhzTM"))
+dspy.configure(lm=dspy.LM(model="gemini/gemini-1.5-flash"))
 
 class JokeIdea(BaseModel): 
     setup: str 
@@ -25,3 +25,13 @@ class JokeGenerator(dspy.Module):
         self.query_to_idea = dspy.Predict(QueryToIdea)
         self.idea_to_joke = dspy.Predict(IdeaToJoke)
         self.n_attempts = n_attempts
+    def forward(self, query: str) -> str:
+        joke_idea = self.query_to_idea(query=query)
+        print(f"Joke: \n{joke_idea}")
+        joke = self.idea_to_joke(joke_idea=joke_idea)
+        print(f"Joke: \n{joke}")
+        return joke
+joke_generator = JokeGenerator()
+joke = joke_generator(query="Write a joke about a fish with no eyes")
+print("...")        
+print(joke.joke)
